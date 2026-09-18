@@ -8,7 +8,7 @@ Aplicação web **mobile first** que usa a **câmera real do celular** pelo nave
 
 **No computador (com webcam):** abra o arquivo `index.html` no Chrome ou no Edge e permita o uso da câmera quando o navegador solicitar.
 
-**No celular:** para visualização no navegador do celular, o projeto pode ser acessado através do link: [JOVI Lens]().
+**No celular:** para visualização no navegador do celular, o projeto pode ser acessado através do link: [JOVI Lens](https://alcamarano.github.io/challenge-jovi-fiap/).
 
 ## Telas e funcionalidades
 
