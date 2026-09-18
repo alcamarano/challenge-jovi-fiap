@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+    <meta name="description" content="JOVI Lens: a câmera que sugere o melhor modo, ajuda em pouca luz, organiza suas fotos e compartilha em um toque."/>
+    <meta name="theme-color" content="#2046E8"/>
+    <title>JOVI Lens | Início</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700&display=swap" rel="stylesheet"/>
+    <!-- Tailwind CSS (CDN) + configuração da marca -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
+    <!-- Estilos próprios -->
+    <link rel="stylesheet" href="css/style.css"/>
+    <!-- Pré-carrega a câmera e galeria -->
+    <link rel="prefetch" href="camera.html"/>
+    <link rel="prefetch" href="galeria.html"/>
+  </head>
+  <body data-pagina="inicio">
+    <div class="app">
+      <!-- ===================== TOPO ===================== -->
+      <header class="topo-inicio px-6 pt-6 pb-10">
+        <div class="relative flex items-center justify-between mb-8">
+          <a href="index.html" class="flex items-center gap-2" aria-label="JOVI Lens, início">
+            <img src="assets/favicon.svg" alt="" class="w-9 h-9" />
+            <span class="font-display text-xl font-semibold tracking-tight">JOVI Lens</span>
+          </a>
+          <button id="botao-tour" class="text-sm font-semibold bg-white/15 hover:bg-white/25 rounded-full px-4 py-2">
+            Ver tour
+          </button>
+        </div>
+        <div class="relative grid grid-cols-[1fr_132px] gap-5 items-center">
+          <div>
+            <h1 class="font-display text-[2rem] leading-[1.1] font-semibold tracking-tight mb-4">
+              Aponte. A câmera cuida do resto.
+            </h1>
+            <p class="text-white/85 leading-relaxed mb-6">
+              Abra a câmera do seu celular no navegador: o JOVI Lens lê a cena, escolhe o modo certo, ajuda quando falta luz e deixa a foto pronta para enviar.
+            </p>
+          </div>
+          <!-- Demonstração do que a câmera faz em cada situação -->
+          <figure class="demo-celular" id="demo" aria-label="Exemplos de leitura da cena">
+            <div class="demo-fundo" id="demo-fundo"></div>
+            <span class="demo-icone" id="demo-icone" data-icon="sol" aria-hidden="true"></span>
+            <figcaption id="demo-chip"
+              class="demo-chip absolute left-2 right-2 bottom-2 rounded-xl bg-black/60 backdrop-blur px-2 py-1.5 text-[11px] font-bold leading-tight">
+              Cena com boa luz<br><span class="text-sinal">Modo Foto</span>
+            </figcaption>
+          </figure>
+        </div>
+        <div class="relative flex gap-3">
+          <a href="camera.html" class="botao bg-white text-jovi hover:bg-jovi-50 flex-1">
+            <span data-icon="camera" class="w-5 h-5"></span> Abrir câmera
+          </a>
+          <a href="galeria.html" class="botao bg-white/15 hover:bg-white/25 text-white">
+            Galeria
+          </a>
+        </div>
+      </header>
+      <main class="px-6 -mt-4 relative">
+        <!-- ===================== RESUMO DO USUÁRIO ===================== -->
+        <section class="bg-white rounded-3xl p-5 shadow-[0_10px_30px_-18px_rgba(10,18,51,.35)] mb-8" aria-labelledby="titulo-recentes">
+          <div class="flex items-baseline justify-between mb-4">
+            <h2 id="titulo-recentes" class="font-display text-lg font-semibold text-jovi-900">Suas fotos recentes</h2>
+            <a href="galeria.html" class="text-sm font-bold text-jovi">Ver todas</a>
+          </div>
+          <ul id="recentes" class="grid grid-cols-4 gap-2 mb-4">
+            <!-- Preenchido pelo inicio.js -->
+          </ul>
+          <dl class="grid grid-cols-3 text-center divide-x divide-slate-100">
+            <div><dt class="text-xs text-slate-500">Fotos</dt><dd id="total-fotos" class="font-display text-xl font-semibold text-jovi-900">0</dd></div>
+            <div><dt class="text-xs text-slate-500">Vídeos</dt><dd id="total-videos" class="font-display text-xl font-semibold text-jovi-900">0</dd></div>
+            <div><dt class="text-xs text-slate-500">Envios</dt><dd id="total-envios" class="font-display text-xl font-semibold text-jovi-900">0</dd></div>
+          </dl>
+        </section>
+        <!-- ===================== JORNADA DA FOTO ===================== -->
+        <section aria-labelledby="titulo-jornada" class="mb-8">
+          <h2 id="titulo-jornada" class="font-display text-2xl font-semibold text-jovi-900 mb-1">A jornada da foto, sem atrito</h2>
+          <p class="text-slate-600 mb-5">Cada etapa resolve um problema que ouvimos dos usuários.</p>
+          <!-- É uma sequência real (capturar → organizar → enviar), por isso a numeração -->
+          <ol class="relative space-y-3 before:absolute before:left-[23px] before:top-6 before:bottom-6 before:w-0.5 before:bg-jovi-200">
+            <li>
+              <a href="camera.html" class="relative flex gap-4 bg-white rounded-2xl p-4 hover:bg-jovi-50">
+                <span class="w-12 h-12 shrink-0 rounded-full bg-jovi text-white grid place-items-center font-display font-semibold">1</span>
+                <span>
+                  <span class="block font-bold text-jovi-900">Captura Inteligente</span>
+                  <span class="block text-sm text-slate-600">A câmera mede a luz da cena e sugere o melhor modo. Você só aperta o botão.</span>
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="camera.html" class="relative flex gap-4 bg-white rounded-2xl p-4 hover:bg-jovi-50">
+                <span class="w-12 h-12 shrink-0 rounded-full bg-jovi text-white grid place-items-center font-display font-semibold">2</span>
+                <span>
+                  <span class="block font-bold text-jovi-900">Guia de Baixa Luz</span>
+                  <span class="block text-sm text-slate-600">Em lugares escuros, um passo a passo na tela evita fotos escuras e tremidas.</span>
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="galeria.html?aba=contextos" class="relative flex gap-4 bg-white rounded-2xl p-4 hover:bg-jovi-50">
+                <span class="w-12 h-12 shrink-0 rounded-full bg-jovi text-white grid place-items-center font-display font-semibold">3</span>
+                <span>
+                  <span class="block font-bold text-jovi-900">Galeria Inteligente</span>
+                  <span class="block text-sm text-slate-600">Suas fotos separadas por dia e por assunto: selfies, noite, vídeos e dia a dia.</span>
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="galeria.html" class="relative flex gap-4 bg-white rounded-2xl p-4 hover:bg-jovi-50">
+                <span class="w-12 h-12 shrink-0 rounded-full bg-jovi text-white grid place-items-center font-display font-semibold">4</span>
+                <span>
+                  <span class="block font-bold text-jovi-900">Compartilhamento Rápido</span>
+                  <span class="block text-sm text-slate-600">Ajuste leve e envio pelo menu do celular, com arquivo otimizado para chegar mais rápido.</span>
+                </span>
+              </a>
+            </li>
+          </ol>
+        </section>
+        <!-- ===================== RODAPÉ ===================== -->
+        <footer class="text-center text-sm text-slate-500 pb-4">
+          <p class="mb-3">Protótipo acadêmico FIAP + JOVI, Challenge 2026.</p>
+          <button id="botao-resetar" class="inline-flex items-center gap-2 font-semibold text-slate-600 hover:text-jovi hidden">
+            <span data-icon="lixeira" class="w-4 h-4"></span> Apagar todas as fotos
+          </button>
+        </footer>
+
+        <div class="espaco-menu"></div>
+      </main>
+      <!-- ===================== MENU INFERIOR ===================== -->
+      <nav class="menu-inferior" aria-label="Navegação principal">
+        <a href="index.html" class="menu-item" data-nav="inicio">
+          <span data-icon="inicio" class="w-6 h-6"></span> Início
+        </a>
+        <a href="camera.html" class="menu-camera" aria-label="Abrir câmera">
+          <span data-icon="camera" class="w-7 h-7"></span>
+        </a>
+        <a href="galeria.html" class="menu-item" data-nav="galeria">
+          <span data-icon="imagem" class="w-6 h-6"></span> Galeria
+        </a>
+      </nav>
+    </div>
+    <!-- Scripts (a ordem importa: lucide → ícones → dados → componentes → página) -->
+    <script src="https://unpkg.com/lucide@1.46.0/dist/umd/lucide.min.js"></script>
+    <script src="js/icones.js"></script>
+    <script src="js/dados.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/inicio.js"></script>
+  </body>
+</html>

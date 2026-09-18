@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+    <meta name="theme-color" content="#F6F7FB"/>
+    <title>JOVI Lens | Galeria</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700&display=swap" rel="stylesheet"/>
+    <!-- Tailwind CSS (CDN) + configuração da marca -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
+    <!-- Estilos próprios -->
+    <link rel="stylesheet" href="css/style.css"/>
+    <!-- Pré-carrega a foto -->
+    <link rel="prefetch" href="foto.html"/>
+  </head>
+  <body data-pagina="galeria">
+    <div class="app">
+      <!-- ===================== CABEÇALHO ===================== -->
+      <header class="sticky top-0 z-20 bg-[#F6F7FB]/95 backdrop-blur px-5 pt-5 pb-3">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h1 class="font-display text-2xl font-semibold text-jovi-900">Galeria</h1>
+            <!-- Feedback de performance: quantos itens e em quanto tempo carregaram -->
+            <p id="desempenho" class="text-xs text-slate-500 flex items-center gap-1.5">
+              <span data-icon="velocidade" class="w-3.5 h-3.5 text-jovi"></span>
+              <span id="texto-desempenho">Carregando…</span>
+            </p>
+          </div>
+          <button id="botao-selecionar" class="botao botao-claro botao-pequeno">
+            Selecionar
+          </button>
+        </div>
+        <!-- Busca -->
+        <label class="relative block mb-3">
+          <span class="so-leitor">Buscar fotos</span>
+          <span data-icon="busca" class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></span>
+          <input id="busca" type="search" placeholder="Buscar lugar, assunto ou modo" class="campo campo-busca" autocomplete="off" />
+        </label>
+        <!-- Abas -->
+        <div class="flex justify-between gap-1 overflow-x-auto sem-barra" role="tablist" aria-label="Formas de ver a galeria">
+          <button class="aba" role="tab" data-aba="momentos" aria-selected="true">Momentos</button>
+          <button class="aba" role="tab" data-aba="contextos" aria-selected="false">Assuntos</button>
+          <button class="aba" role="tab" data-aba="albuns" aria-selected="false">Álbuns</button>
+          <button class="aba" role="tab" data-aba="favoritas" aria-selected="false">Favoritas</button>
+        </div>
+      </header>
+      <main class="px-5">
+        <!-- Sugestões automáticas de uso -->
+        <section id="sugestoes" aria-label="Sugestões para você" class="mb-5"></section>
+        <!-- Conteúdo da aba atual (preenchido pelo galeria.js) -->
+        <section id="conteudo" aria-live="polite"></section>
+        <div class="espaco-menu"></div>
+      </main>
+      <!-- ===================== BARRA DE SELEÇÃO ===================== -->
+      <div id="barra-selecao"
+        class="hidden fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[440px] z-40 bg-jovi-900 text-white rounded-t-3xl px-4 pt-3 pb-[max(14px,env(safe-area-inset-bottom))]">
+        <div class="flex items-center justify-between mb-2">
+          <button id="selecao-cancelar" class="text-sm font-bold text-white/80 px-2 py-1">Cancelar</button>
+          <p id="selecao-total" class="font-semibold">Nenhum item</p>
+          <button id="selecao-todos" class="text-sm font-bold text-sinal px-2 py-1">Todos</button>
+        </div>
+        <div class="grid grid-cols-4 gap-1">
+          <button class="acao-selecao flex flex-col items-center gap-1 py-2 rounded-xl hover:bg-white/10 text-xs font-semibold" data-acao="compartilhar">
+            <span data-icon="compartilhar" class="w-6 h-6"></span> Enviar
+          </button>
+          <button class="acao-selecao flex flex-col items-center gap-1 py-2 rounded-xl hover:bg-white/10 text-xs font-semibold" data-acao="album">
+            <span data-icon="album" class="w-6 h-6"></span> Álbum
+          </button>
+          <button class="acao-selecao flex flex-col items-center gap-1 py-2 rounded-xl hover:bg-white/10 text-xs font-semibold" data-acao="favoritar">
+            <span data-icon="coracao" class="w-6 h-6"></span> Favoritar
+          </button>
+          <button class="acao-selecao flex flex-col items-center gap-1 py-2 rounded-xl hover:bg-white/10 text-xs font-semibold text-red-300" data-acao="excluir">
+            <span data-icon="lixeira" class="w-6 h-6"></span> Apagar
+          </button>
+        </div>
+      </div>
+      <!-- ===================== MENU INFERIOR ===================== -->
+      <nav id="menu" class="menu-inferior" aria-label="Navegação principal">
+        <a href="index.html" class="menu-item" data-nav="inicio">
+          <span data-icon="inicio" class="w-6 h-6"></span> Início
+        </a>
+        <a href="camera.html" class="menu-camera" aria-label="Abrir câmera">
+          <span data-icon="camera" class="w-7 h-7"></span>
+        </a>
+        <a href="galeria.html" class="menu-item" data-nav="galeria">
+          <span data-icon="imagem" class="w-6 h-6"></span> Galeria
+        </a>
+      </nav>
+    </div>
+    <!-- Scripts (a ordem importa: lucide → ícones → dados → componentes → página) -->
+    <script src="https://unpkg.com/lucide@1.46.0/dist/umd/lucide.min.js"></script>
+    <script src="js/icones.js"></script>
+    <script src="js/dados.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/galeria.js"></script>
+  </body>
+</html>

@@ -1,0 +1,676 @@
+/* =============================================================
+   style.css
+   Estilos próprios do JOVI Lens. O Tailwind cuida do layout;
+   aqui ficam componentes reutilizáveis, animações e detalhes
+   que seriam longos demais em classes utilitárias.
+
+   Sumário
+   1. Base e "moldura" do app
+   2. Botões e campos
+   3. Menu inferior
+   4. Avisos (toast) e painéis (bottom sheet)
+   5. Compartilhamento
+   6. Galeria (carregamento e seleção)
+   7. Câmera
+   8. Início (demonstração do topo)
+   9. Acessibilidade
+   ============================================================= */
+
+/* ---------- 1. BASE E MOLDURA ---------- */
+:root {
+  --jovi: #2046E8;
+  --jovi-escuro: #1834B8;
+  --marinho: #0A1233;
+  --sinal: #FFC53D;
+  --altura-menu: 76px;
+}
+
+html, body { height: 100%; }
+
+body {
+  font-family: 'Manrope', system-ui, sans-serif;
+  background: #DDE3F5;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Mobile first: no celular ocupa a tela toda.
+   No computador vira uma "tela de celular" centralizada. */
+.app {
+  position: relative;
+  min-height: 100dvh;
+  max-width: 440px;
+  margin: 0 auto;
+  background: #F6F7FB;
+  overflow-x: hidden;
+}
+
+@media (min-width: 640px) {
+  body { padding: 24px 0; }
+  .app {
+    min-height: calc(100dvh - 48px);
+    border-radius: 36px;
+    box-shadow: 0 30px 80px -30px rgba(10, 18, 51, .45);
+    overflow: hidden;
+  }
+  .app-camera { height: calc(100dvh - 48px); }
+}
+
+.espelhada { transform: scaleX(-1); }
+
+.sem-barra { scrollbar-width: none; }
+.sem-barra::-webkit-scrollbar { display: none; }
+
+/* ---------- 2. BOTÕES E CAMPOS ---------- */
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  min-height: 48px;
+  padding: 0 1.25rem;
+  border-radius: 999px;
+  font-weight: 700;
+  transition: transform .12s ease, background-color .2s ease;
+}
+.botao:active { transform: scale(.97); }
+.botao-primario { background: var(--jovi); color: #fff; }
+.botao-primario:hover { background: var(--jovi-escuro); }
+.botao-claro { background: #EEF1FD; color: var(--marinho); }
+.botao-claro:hover { background: #E2E8FC; }
+.botao-perigo { background: #DC2626; color: #fff; }
+
+.botao-icone {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  transition: background-color .2s ease, transform .12s ease;
+}
+.botao-icone:hover { background: rgba(127, 127, 127, .15); }
+.botao-icone:active { transform: scale(.92); }
+.botao-icone.icone-pequeno { width: 32px; height: 32px; }
+.botao-icone.icone-grande { width: 50px; height: 50px; background: rgba(255, 255, 255, .1); }
+
+.botao.botao-pequeno { min-height: 40px; padding: 0 1rem; font-size: 14px; }
+
+.campo {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 1rem;
+  border-radius: 14px;
+  border: 2px solid #E2E8F0;
+  background: #fff;
+  font-size: 16px; /* evita zoom automático no iPhone */
+}
+.campo:focus { outline: none; border-color: var(--jovi); }
+.campo.campo-busca { padding-left: 3rem; border-radius: 999px; }
+
+/* Interruptor (liga/desliga) feito só com CSS */
+.chave {
+  appearance: none;
+  width: 46px;
+  height: 28px;
+  border-radius: 999px;
+  background: #CBD5E1;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color .2s ease;
+}
+.chave::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .25);
+  transition: transform .2s ease;
+}
+.chave:checked { background: var(--jovi); }
+.chave:checked::after { transform: translateX(18px); }
+
+/* Controle deslizante (brilho, contraste) */
+.deslizante {
+  width: 100%;
+  appearance: none;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .25);
+}
+.deslizante::-webkit-slider-thumb {
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--sinal);
+  border: 3px solid #fff;
+  cursor: pointer;
+}
+.deslizante::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--sinal);
+  border: 3px solid #fff;
+  cursor: pointer;
+}
+
+/* ---------- 3. MENU INFERIOR ---------- */
+.menu-inferior {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 440px;
+  height: var(--altura-menu);
+  padding-bottom: env(safe-area-inset-bottom);
+  background: rgba(255, 255, 255, .92);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid #E5E8F0;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  z-index: 30;
+}
+
+.menu-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748B;
+  padding: 8px 0;
+}
+.menu-item.ativo { color: var(--jovi); }
+
+/* Botão central da câmera: o atalho principal do app */
+.menu-camera {
+  width: 62px;
+  height: 62px;
+  margin-top: -26px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: var(--jovi);
+  color: #fff;
+  border: 5px solid #F6F7FB;
+  box-shadow: 0 10px 24px -8px rgba(32, 70, 232, .7);
+  transition: transform .15s ease;
+}
+.menu-camera:active { transform: scale(.93); }
+
+.espaco-menu { height: calc(var(--altura-menu) + 24px); }
+
+/* ---------- 4. AVISOS E PAINÉIS ---------- */
+.area-avisos {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 80;
+  pointer-events: none;
+}
+.aviso {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 18px;
+  background: var(--marinho);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 12px 30px -10px rgba(10, 18, 51, .6);
+  pointer-events: auto;
+  animation: aviso-entra .3s cubic-bezier(.2, .9, .3, 1.2);
+}
+.aviso.saindo { opacity: 0; transform: translateY(-8px); transition: all .25s ease; }
+@keyframes aviso-entra {
+  from { opacity: 0; transform: translateY(-14px) scale(.96); }
+}
+
+.painel-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(10, 18, 51, 0);
+  transition: background-color .25s ease;
+}
+.painel-fundo.aberto { background: rgba(10, 18, 51, .5); }
+
+.painel {
+  width: 100%;
+  max-width: 440px;
+  max-height: 88dvh;
+  overflow-y: auto;
+  background: #fff;
+  color: var(--marinho);
+  border-radius: 28px 28px 0 0;
+  padding: 10px 20px calc(24px + env(safe-area-inset-bottom));
+  transform: translateY(100%);
+  transition: transform .3s cubic-bezier(.2, .9, .3, 1);
+}
+.painel-fundo.aberto .painel { transform: translateY(0); }
+.painel-escuro { background: #141A36; color: #fff; }
+
+.painel-alca {
+  width: 40px;
+  height: 5px;
+  border-radius: 999px;
+  background: #CBD5E1;
+  margin: 0 auto 14px;
+}
+
+/* ---------- 5. COMPARTILHAMENTO ---------- */
+.destino-avatar {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 20px;
+  transition: transform .12s ease;
+}
+.destino:active .destino-avatar { transform: scale(.92); }
+.destino-inicial, .destino-ok { grid-area: 1 / 1; transition: opacity .2s ease, transform .2s ease; }
+.destino-ok { width: 28px; height: 28px; opacity: 0; transform: scale(.4); }
+
+/* Anel de progresso desenhado com conic-gradient */
+.destino-progresso {
+  position: absolute;
+  inset: -5px;
+  border-radius: 999px;
+  opacity: 0;
+  background: conic-gradient(var(--jovi) var(--p, 0%), transparent 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 0);
+          mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 0);
+}
+@property --p { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
+.destino.enviando .destino-progresso {
+  opacity: 1;
+  animation: progresso var(--tempo, .6s) linear forwards;
+}
+@keyframes progresso { to { --p: 100%; } }
+
+.destino.enviado .destino-avatar { background: #16A34A !important; color: #fff !important; }
+.destino.enviado .destino-inicial { opacity: 0; transform: scale(.4); }
+.destino.enviado .destino-ok { opacity: 1; transform: scale(1); }
+
+/* ---------- 6. GALERIA ---------- */
+/* Efeito "carregando" enquanto a imagem não aparece */
+.bloco-carregando {
+  background: linear-gradient(100deg, #E2E8F0 30%, #F1F5F9 50%, #E2E8F0 70%);
+  background-size: 300% 100%;
+  animation: brilho-carregando 1.2s linear infinite;
+}
+@keyframes brilho-carregando { to { background-position: -150% 0; } }
+
+.bloco-carregando img { opacity: 0; transition: opacity .35s ease; }
+.bloco-carregando.carregado { animation: none; background: #E2E8F0; }
+.bloco-carregando.carregado img { opacity: 1; }
+
+.ladrilho { position: relative; aspect-ratio: 1; overflow: hidden; }
+.ladrilho:focus-visible { outline: 3px solid var(--jovi); outline-offset: -3px; }
+
+/* Modo seleção */
+.marcador {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: 2px solid #fff;
+  background: rgba(0, 0, 0, .25);
+  display: none;
+  place-items: center;
+  color: #fff;
+}
+.selecionando .marcador { display: grid; }
+.ladrilho.marcado img { transform: scale(.86); border-radius: 10px; }
+.ladrilho img { transition: transform .15s ease, border-radius .15s ease, opacity .35s ease; }
+.ladrilho.marcado .marcador { background: var(--jovi); }
+.ladrilho .marcador svg { width: 14px; height: 14px; opacity: 0; }
+.ladrilho.marcado .marcador svg { opacity: 1; }
+
+.aba {
+  padding: 7px 11px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 13px;
+  color: #475569;
+  white-space: nowrap;
+  transition: background-color .2s ease, color .2s ease;
+}
+.aba[aria-selected='true'] { background: var(--marinho); color: #fff; }
+
+/* ---------- 7. CÂMERA ---------- */
+.app-camera {
+  height: 100dvh;
+  background: #000;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.visor {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 20px;
+  margin: 0 8px;
+  background: #111;
+  touch-action: pan-y;
+}
+.visor-midia {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: filter .5s ease, transform .3s ease;
+}
+
+/* Grade de enquadramento (regra dos terços) */
+.grade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, transparent calc(33.33% - .5px), rgba(255,255,255,.4) 0, rgba(255,255,255,.4) calc(33.33% + .5px), transparent 0,
+                    transparent calc(66.66% - .5px), rgba(255,255,255,.4) 0, rgba(255,255,255,.4) calc(66.66% + .5px), transparent 0),
+    linear-gradient(to bottom, transparent calc(33.33% - .5px), rgba(255,255,255,.4) 0, rgba(255,255,255,.4) calc(33.33% + .5px), transparent 0,
+                    transparent calc(66.66% - .5px), rgba(255,255,255,.4) 0, rgba(255,255,255,.4) calc(66.66% + .5px), transparent 0);
+}
+
+/* Aviso de permissão da câmera */
+.permissao {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(6, 10, 26, .92);
+  transition: opacity .3s ease;
+}
+.permissao.escondido { opacity: 0; pointer-events: none; }
+
+/* Modo Retrato: escurece as bordas do visor */
+.vinheta {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, .45) 100%);
+}
+
+/* Aura Light na câmera frontal: a tela vira luz de apoio */
+.visor.aura-ativa::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 26px solid rgba(255, 255, 255, .92);
+  border-radius: 20px;
+  box-shadow: inset 0 0 60px rgba(255, 255, 255, .55);
+}
+
+.flash-captura {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+}
+.flash-captura.disparar { animation: flash .35s ease-out; }
+@keyframes flash { 0% { opacity: .9; } 100% { opacity: 0; } }
+
+/* Quadrado de foco ao tocar no visor */
+.foco {
+  position: absolute;
+  width: 72px;
+  height: 72px;
+  margin: -36px 0 0 -36px;
+  border: 2px solid var(--sinal);
+  border-radius: 12px;
+  pointer-events: none;
+  opacity: 0;
+}
+.foco.ativo { animation: focar .9s ease forwards; }
+@keyframes focar {
+  0% { opacity: 1; transform: scale(1.4); }
+  30% { opacity: 1; transform: scale(1); }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.etiqueta-visor.etiqueta-gravando { background: rgba(220, 38, 38, .9); }
+.etiqueta-visor {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, .45);
+  backdrop-filter: blur(10px);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Cartões flutuantes sobre o visor (sugestão e guia de luz) */
+.cartao-visor {
+  background: rgba(10, 18, 51, .78);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 20px;
+  transition: opacity .3s ease, transform .3s ease;
+}
+.cartao-visor.escondido { opacity: 0; transform: translateY(-10px); pointer-events: none; }
+
+.passo-guia .bolinha {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, .4);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: all .25s ease;
+}
+.passo-guia .bolinha svg { width: 13px; height: 13px; opacity: 0; }
+.passo-guia.feito .bolinha { background: #22C55E; border-color: #22C55E; }
+.passo-guia.feito .bolinha svg { opacity: 1; }
+.passo-guia.feito .texto-passo { color: rgba(255, 255, 255, .6); }
+
+/* Anel de estabilização do modo Noturno */
+.estabilizar {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, .35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease;
+}
+.estabilizar.ativo { opacity: 1; }
+.anel-estabilizar { width: 120px; height: 120px; transform: rotate(-90deg); }
+.anel-estabilizar circle { fill: none; stroke-width: 6; }
+.anel-estabilizar .trilho { stroke: rgba(255, 255, 255, .25); }
+.anel-estabilizar .preenchido {
+  stroke: var(--sinal);
+  stroke-linecap: round;
+  stroke-dasharray: 339.3;
+  stroke-dashoffset: 339.3;
+}
+.estabilizar.ativo .preenchido { animation: encher-anel var(--tempo, 2s) linear forwards; }
+@keyframes encher-anel { to { stroke-dashoffset: 0; } }
+
+.zoom-botao {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #fff;
+  transition: all .2s ease;
+}
+.zoom-botao.ativo { background: rgba(0, 0, 0, .55); color: var(--sinal); width: 40px; height: 40px; }
+
+.modo-botao {
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, .7);
+  white-space: nowrap;
+  transition: color .2s ease;
+}
+.modo-botao.ativo { color: var(--sinal); }
+.modo-botao.sugerido::after {
+  content: '';
+  display: block;
+  width: 5px;
+  height: 5px;
+  margin: 3px auto 0;
+  border-radius: 999px;
+  background: var(--sinal);
+}
+
+/* Botão de captura */
+.disparador {
+  width: 78px;
+  height: 78px;
+  border-radius: 999px;
+  border: 4px solid #fff;
+  display: grid;
+  place-items: center;
+  transition: transform .1s ease;
+}
+.disparador:active { transform: scale(.92); }
+.disparador-miolo {
+  width: 62px;
+  height: 62px;
+  border-radius: 999px;
+  background: #fff;
+  transition: all .25s ease;
+}
+.disparador.video .disparador-miolo { background: #EF4444; }
+.disparador.gravando .disparador-miolo { width: 28px; height: 28px; border-radius: 8px; }
+.disparador.noturno .disparador-miolo { background: var(--sinal); }
+
+.miniatura-ultima {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, .8);
+  background: #222;
+}
+.miniatura-ultima.pulo { animation: pulo .45s cubic-bezier(.2, .9, .3, 1.4); }
+@keyframes pulo { 0% { transform: scale(.4); } 100% { transform: scale(1); } }
+
+.gravando-indicador { animation: piscar 1s steps(2) infinite; }
+@keyframes piscar { 50% { opacity: .3; } }
+
+/* ---------- 8. INÍCIO ---------- */
+.topo-inicio {
+  background: var(--jovi);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+/* Faixa diagonal inspirada no "V" da marca JOVI */
+.topo-inicio::before {
+  content: '';
+  position: absolute;
+  width: 220px;
+  height: 900px;
+  right: -40px;
+  top: -260px;
+  background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.02));
+  transform: rotate(-32deg);
+}
+
+.demo-celular {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 26px;
+  overflow: hidden;
+  border: 5px solid var(--marinho);
+  background: #000;
+  display: grid;
+  place-items: center;
+}
+.demo-fundo {
+  position: absolute;
+  inset: 0;
+  transition: background .6s ease;
+}
+.demo-dia { background: linear-gradient(160deg, #7FB2F0, #E8F1FA 70%, #C9D6E4); }
+.demo-noite { background: linear-gradient(160deg, #060B22, #1B2550 60%, #2C1E4A); }
+.demo-selfie { background: linear-gradient(160deg, #F0C9A8, #B9CDB4); }
+.demo-icone {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  color: #fff;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .45));
+}
+.demo-chip { transition: opacity .3s ease, transform .3s ease; }
+.demo-chip.trocando { opacity: 0; transform: translateY(6px); }
+
+.onboarding-ponto {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #CBD5E1;
+  transition: all .25s ease;
+}
+.onboarding-ponto.ativo { width: 24px; background: var(--jovi); }
+
+/* ---------- 9. ACESSIBILIDADE ---------- */
+/* Garante que "hidden" do Tailwind sempre esconda,
+   mesmo em componentes que definem display próprio */
+.hidden { display: none !important; }
+
+[data-icon] { display: inline-flex; }
+[data-icon] svg { width: 100%; height: 100%; }
+
+:focus-visible { outline: 3px solid var(--sinal); outline-offset: 2px; }
+
+.so-leitor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Respeita quem prefere menos movimento */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

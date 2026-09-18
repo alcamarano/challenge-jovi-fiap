@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+    <meta name="theme-color" content="#000000"/>
+    <title>JOVI Lens | Câmera</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700&display=swap" rel="stylesheet"/>
+    <!-- Tailwind CSS (CDN) + configuração da marca -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
+    <!-- Estilos próprios -->
+    <link rel="stylesheet" href="css/style.css"/>
+    <!-- Pré-carrega a galeria -->
+    <link rel="prefetch" href="galeria.html"/>
+  </head>
+  <body data-pagina="camera" class="bg-black">
+    <div class="app app-camera">
+      <!-- ===================== BARRA SUPERIOR ===================== -->
+      <header class="flex items-center justify-between px-2 pt-2 pb-2">
+        <a href="index.html" class="botao-icone" aria-label="Voltar ao início">
+          <span data-icon="voltar" class="w-6 h-6"></span>
+        </a>
+        <div class="flex items-center gap-0.5" role="toolbar" aria-label="Ajustes da câmera">
+          <button id="botao-flash" class="botao-icone" aria-label="Flash desligado" aria-pressed="false">
+            <span data-icon="flashOff" class="w-5 h-5"></span>
+          </button>
+          <button id="botao-aura" class="botao-icone" aria-label="Aura Light" aria-pressed="false" title="Aura Light: luz de apoio">
+            <span data-icon="lampada" class="w-5 h-5"></span>
+          </button>
+          <button id="botao-grade" class="botao-icone" aria-label="Grade de enquadramento" aria-pressed="false">
+            <span data-icon="grade" class="w-5 h-5"></span>
+          </button>
+          <button id="botao-local" class="botao-icone" aria-label="Salvar localização" aria-pressed="false" title="Salvar a localização na foto">
+            <span data-icon="local" class="w-5 h-5"></span>
+          </button>
+          <button id="botao-ia" class="botao-icone text-sinal" aria-label="Captura Inteligente ligada" aria-pressed="true">
+            <span data-icon="ia" class="w-5 h-5"></span>
+          </button>
+        </div>
+      </header>
+      <!-- ===================== VISOR ===================== -->
+      <section id="visor" class="visor" aria-label="Visor da câmera. Toque para focar, deslize para trocar de modo.">
+        <video id="visor-video" class="visor-midia" autoplay playsinline muted></video>
+        <canvas id="canvas-analise" width="32" height="24" class="hidden"></canvas>
+        <div id="vinheta" class="vinheta hidden"></div>
+        <div id="grade" class="grade hidden"></div>
+        <div id="foco" class="foco"></div>
+        <div id="flash-captura" class="flash-captura"></div>
+        <!-- Etiquetas: cena lida pela câmera e luminosidade medida -->
+        <div class="absolute top-3 left-3 right-3 flex justify-between items-start gap-2 pointer-events-none">
+          <span id="etiqueta-cena" class="etiqueta-visor">
+            <span data-icon="ia" class="w-3.5 h-3.5 text-sinal"></span>
+            <span id="texto-cena">Lendo a cena…</span>
+          </span>
+          <span id="etiqueta-luz" class="etiqueta-visor">
+            <span data-icon="sol" class="w-3.5 h-3.5" id="icone-luz"></span>
+            <span id="texto-luz">—</span>
+          </span>
+          <span id="etiqueta-gravando" class="etiqueta-visor etiqueta-gravando hidden">
+            <span class="w-2 h-2 rounded-full bg-white gravando-indicador"></span>
+            <span id="tempo-gravacao">0:00</span>
+          </span>
+        </div>
+        <!-- Captura Inteligente -->
+        <div id="sugestao" class="cartao-visor escondido absolute top-14 left-3 right-3 p-3 flex items-center gap-3" role="status" aria-live="polite">
+          <span class="w-10 h-10 rounded-full bg-sinal text-jovi-900 grid place-items-center shrink-0">
+            <span id="sugestao-icone" data-icon="lua" class="w-5 h-5"></span>
+          </span>
+          <p class="flex-1 text-sm leading-snug">
+            <strong id="sugestao-titulo" class="block">Cena escura</strong>
+            <span id="sugestao-texto" class="text-white/75">Use o modo Noturno para clarear.</span>
+          </p>
+          <button id="sugestao-aplicar" class="bg-sinal text-jovi-900 font-bold text-sm rounded-full px-4 py-2 shrink-0">Ativar</button>
+          <button id="sugestao-fechar" class="botao-icone icone-pequeno shrink-0" aria-label="Dispensar sugestão">
+            <span data-icon="fechar" class="w-4 h-4"></span>
+          </button>
+        </div>
+        <!-- Guia de Baixa Luz -->
+        <aside id="guia-luz" class="cartao-visor escondido absolute left-3 right-3 bottom-3 p-4" aria-label="Guia de Baixa Luz">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="font-display font-semibold flex items-center gap-2">
+              <span data-icon="lua" class="w-4 h-4 text-sinal"></span> Pouca luz
+            </h2>
+            <button id="guia-minimizar" class="text-xs font-bold text-white/70 px-2 py-1" aria-expanded="true">Ocultar</button>
+          </div>
+          <ol id="guia-passos" class="space-y-2 text-sm">
+            <li class="passo-guia flex items-center gap-3" data-passo="modo">
+              <span class="bolinha"><span data-icon="check"></span></span>
+              <span class="texto-passo flex-1">Ative o modo Noturno</span>
+              <button class="text-sinal font-bold text-xs" data-acao="modo">Ativar</button>
+            </li>
+            <li class="passo-guia flex items-center gap-3" data-passo="aura">
+              <span class="bolinha"><span data-icon="check"></span></span>
+              <span class="texto-passo flex-1">Ligue a Aura Light</span>
+              <button class="text-sinal font-bold text-xs" data-acao="aura">Ligar</button>
+            </li>
+            <li class="passo-guia flex items-center gap-3" data-passo="firme">
+              <span class="bolinha"><span data-icon="check"></span></span>
+              <span class="texto-passo flex-1">Apoie os cotovelos e segure firme por 2 s</span>
+            </li>
+          </ol>
+        </aside>
+        <!-- Estabilização do modo Noturno -->
+        <div id="estabilizar" class="estabilizar" aria-hidden="true">
+          <div class="relative grid place-items-center">
+            <svg class="anel-estabilizar" viewBox="0 0 120 120">
+              <circle class="trilho" cx="60" cy="60" r="54" />
+              <circle class="preenchido" cx="60" cy="60" r="54" />
+            </svg>
+            <span class="absolute text-center text-sm font-bold leading-tight">Segure<br>firme</span>
+          </div>
+        </div>
+        <!-- Permissão da câmera -->
+        <div id="permissao" class="permissao">
+          <div class="max-w-xs text-center">
+            <span class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-jovi grid place-items-center">
+              <span data-icon="camera" class="w-8 h-8"></span>
+            </span>
+            <h2 id="permissao-titulo" class="font-display text-xl font-semibold mb-2">Abrindo a câmera…</h2>
+            <p id="permissao-texto" class="text-white/70 mb-5">Toque em "Permitir" quando o navegador perguntar. As fotos ficam só no seu aparelho.</p>
+            <button id="permissao-botao" class="botao bg-sinal text-jovi-900 hidden">Permitir câmera</button>
+          </div>
+        </div>
+      </section>
+      <!-- ===================== CONTROLES ===================== -->
+      <section class="pt-3 pb-2" aria-label="Controles de captura">
+        <div id="zoom" class="flex justify-center items-center gap-1 mb-2" role="group" aria-label="Zoom">
+          <div class="flex items-center gap-1 bg-white/10 rounded-full p-1">
+            <button class="zoom-botao ativo" data-zoom="1">1x</button>
+            <button class="zoom-botao" data-zoom="2">2</button>
+            <button class="zoom-botao" data-zoom="3">3</button>
+          </div>
+        </div>
+        <div id="modos" class="flex justify-center gap-1 mb-3" role="tablist" aria-label="Modos da câmera"></div>
+        <div class="flex items-center justify-around px-6">
+          <a id="ultima-foto" href="galeria.html" class="miniatura-ultima" aria-label="Abrir última foto"></a>
+          <button id="disparador" class="disparador" aria-label="Tirar foto" disabled>
+            <span class="disparador-miolo"></span>
+          </button>
+          <button id="botao-virar" class="botao-icone icone-grande hidden" aria-label="Trocar de câmera">
+            <span data-icon="girar" class="w-6 h-6"></span>
+          </button>
+        </div>
+      </section>
+      <!-- ===================== STATUS ===================== -->
+      <footer class="text-center text-[11px] text-white/45 pb-[max(10px,env(safe-area-inset-bottom))]">
+        <p id="status-camera">Câmera do aparelho</p>
+      </footer>
+    </div>
+    <!-- Scripts (a ordem importa: lucide → ícones → dados → componentes → página) -->
+    <script src="https://unpkg.com/lucide@1.46.0/dist/umd/lucide.min.js"></script>
+    <script src="js/icones.js"></script>
+    <script src="js/dados.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/camera.js"></script>
+  </body>
+</html>
